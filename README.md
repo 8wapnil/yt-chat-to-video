@@ -4,7 +4,7 @@ This is an enhanced version of the original script that converts YouTube Live Ch
 
 <br/>
 <div align="center">
-   <img alt="screenshot_gui" src="https://via.placeholder.com/800x600.png?text=GUI+Screenshot+Placeholder">
+   <img alt="screenshot_gui" src="assets/main.png">
 </div>
 <br/>
 
