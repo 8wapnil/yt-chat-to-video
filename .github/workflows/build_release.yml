@@ -1,11 +1,12 @@
 name: Build and Release
 
 on:
-  push:
-    branches: [ "master" ]
-    tags:
-      - 'v*'
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for release (e.g. v1.0.1)'
+        required: true
+        default: 'manual-build'
 
 permissions:
   contents: write
@@ -63,7 +64,6 @@ jobs:
     name: Create Release
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
 
     steps:
     - name: Download Artifacts
@@ -72,6 +72,7 @@ jobs:
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
+        tag_name: ${{ inputs.tag_name }}
         files: |
           YTChatRenderer-macOS/*.zip
           YTChatRenderer-Windows/*.exe
