@@ -6,6 +6,7 @@ import threading
 import os
 import platform
 import shutil
+import json
 
 # Theme Settings
 ctk.set_appearance_mode("Dark")
@@ -15,7 +16,7 @@ class ChatRendererGUI(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("YT Chat Renderer - Enhanced")
+        self.title("YT Chat Render")
         self.geometry("900x700")
         
         # Grid Configuration
@@ -44,6 +45,119 @@ class ChatRendererGUI(ctk.CTk):
         self.init_style_tab()
         self.init_advanced_tab()
         self.init_log_section()
+        
+        self.load_settings()
+
+    def get_settings_file(self):
+        # Store settings in user home directory to avoid permission issues in Program Files
+        home = os.path.expanduser("~")
+        config_dir = os.path.join(home, ".yt-chat-renderer")
+        if not os.path.exists(config_dir):
+            os.makedirs(config_dir)
+        return os.path.join(config_dir, "settings.json")
+
+    def load_settings(self):
+        try:
+            path = self.get_settings_file()
+            if not os.path.exists(path):
+                return
+            
+            with open(path, "r") as f:
+                settings = json.load(f)
+                
+            # Helper to safely set fields
+            def safe_set(entry, key):
+                if key in settings:
+                    entry.delete(0, "end")
+                    entry.insert(0, str(settings[key]))
+            
+            # Helper for checkboxes
+            def safe_check(checkbox, key):
+                if key in settings:
+                    checkbox.select() if settings[key] else checkbox.deselect()
+
+            # Main
+            safe_set(self.url_entry, "url")
+            if "file_path" in settings: self.file_path_var.set(settings["file_path"])
+            safe_set(self.output_entry, "output")
+            
+            # Video
+            safe_set(self.width_entry, "width")
+            safe_set(self.height_entry, "height")
+            safe_set(self.fps_entry, "fps")
+            safe_set(self.start_time, "start_time")
+            safe_set(self.end_time, "end_time")
+            
+            if "codec" in settings: self.codec_var.set(settings["codec"])
+            if "quality" in settings: self.quality_var.set(settings["quality"])
+            safe_check(self.hwaccel_var, "hwaccel")
+
+            # Style
+            safe_set(self.color_owner, "color_owner")
+            safe_set(self.color_mod, "color_mod")
+            safe_set(self.color_member, "color_member")
+            safe_set(self.color_normal, "color_normal")
+            
+            safe_set(self.bg_color, "bg_color")
+            safe_set(self.msg_color, "msg_color")
+            safe_set(self.outline_color, "outline_color")
+            
+            safe_check(self.check_transparent, "transparent")
+            
+            if "outline_width" in settings: self.outline_width.set(settings["outline_width"])
+            safe_set(self.padding, "padding")
+            safe_set(self.scale, "scale")
+
+            # Advanced
+            safe_check(self.use_cache, "use_cache")
+            safe_check(self.skip_avatars, "skip_avatars")
+            safe_check(self.skip_emojis, "skip_emojis")
+            safe_check(self.no_clip, "no_clip")
+            
+            safe_set(self.proxy_entry, "proxy")
+                
+            self.log(f"Settings loaded from {path}")
+        except Exception as e:
+            self.log(f"Error loading settings: {e}")
+
+    def save_settings(self):
+        try:
+            settings = {
+                "url": self.url_entry.get(),
+                "file_path": self.file_path_var.get(),
+                "output": self.output_entry.get(),
+                "width": self.width_entry.get(),
+                "height": self.height_entry.get(),
+                "fps": self.fps_entry.get(),
+                "start_time": self.start_time.get(),
+                "end_time": self.end_time.get(),
+                "codec": self.codec_var.get(),
+                "quality": self.quality_var.get(),
+                "hwaccel": bool(self.hwaccel_var.get()),
+                "color_owner": self.color_owner.get(),
+                "color_mod": self.color_mod.get(),
+                "color_member": self.color_member.get(),
+                "color_normal": self.color_normal.get(),
+                "bg_color": self.bg_color.get(),
+                "msg_color": self.msg_color.get(),
+                "outline_color": self.outline_color.get(),
+                "transparent": bool(self.check_transparent.get()),
+                "outline_width": self.outline_width.get(),
+                "padding": self.padding.get(),
+                "scale": self.scale.get(),
+                "use_cache": bool(self.use_cache.get()),
+                "skip_avatars": bool(self.skip_avatars.get()),
+                "skip_emojis": bool(self.skip_emojis.get()),
+                "no_clip": bool(self.no_clip.get()),
+                "proxy": self.proxy_entry.get()
+            }
+            
+            path = self.get_settings_file()
+            with open(path, "w") as f:
+                json.dump(settings, f, indent=4)
+            self.log(f"Settings saved to {path}")
+        except Exception as e:
+            self.log(f"Error saving settings: {e}")
 
     def init_main_tab(self):
         t = self.tab_main
@@ -292,6 +406,7 @@ class ChatRendererGUI(ctk.CTk):
             self.stop_btn.configure(state="disabled")
 
     def start_render(self):
+        self.save_settings()
         self.reveal_btn.grid_remove() 
         url = self.url_entry.get().strip()
         file_path = self.file_path_var.get().strip()
@@ -350,33 +465,7 @@ class ChatRendererGUI(ctk.CTk):
         if self.use_cache.get(): cmd.append("--use-cache")
         if self.skip_avatars.get(): cmd.append("--skip-avatars")
         if self.skip_emojis.get(): cmd.append("--skip-emojis")
-        if not self.no_clip.get(): cmd.append("--no-clip") # Logic: checkbox checked means no-clip is active (pass --no-clip which actually means don't clip?) 
-        # Wait, CLI: --no-clip action='store_false' hel='Don't clip'. 
-        # Default behavior: clip. 
-        # If I want to "Don't clip", I need to pass the arg if user checks "No Clip"?
-        # Actually CLI arg is: parser.add_argument('--no-clip', action='store_false', help='Don\'t clip chat messages at the top')
-        # This is confusing. 
-        # Let's check logic in script:
-        # if not args.no_clip and no_more_space: break
-        # default value of boolean store_false is True. 
-        # So args.no_clip is True by default. -> "if not True" -> False. -> Does NOT break. 
-        # Wait. 
-        # parser.add_argument('--no-clip', action='store_false')
-        # If I pass --no-clip, args.no_clip becomes False.
-        # Logic: if not args.no_clip (which is True) -> Break.
-        # So passing --no-clip makes it STOP clipping?
-        # Let's assume Checkbox "Enabled" means "Pass the flag".
-        # If Checkbox "No Clip" is checked -> Pass --no-clip -> args.no_clip = False.
-        # Code: if not False (True) and no_space -> Break.
-        # This seems to mean passing --no-clip ENABLES clipping/breaking ??
-        # Let's cross check CLI definition in `yt-chat-to-video.py`.
-        # parser.add_argument('--no-clip', action='store_false', help='Don\'t clip chat messages at the top')
-        # If user does NOT pass it: Default is True.
-        # Script: if not args.no_clip (False) -> Does NOT break.
-        # So Default = No Break (All messages shown? No wait).
-        # Let's re-read the script logic carefully in next step if needed or just blindly pass it.
-        # Assume standard behavior: Checking "No Clip" -> Pass --no-clip.
-        
+        if not self.no_clip.get(): cmd.append("--no-clip")
         if self.no_clip.get():
              cmd.append("--no-clip")
 
