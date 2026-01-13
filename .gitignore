@@ -5,4 +5,4 @@ ffmpeg.exe
 yt-chat-to-video_cache/
 *.part
 *.ytdl
-*.json
+*.json.DS_Store
