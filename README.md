@@ -1,4 +1,4 @@
-# YouTube Chat to Video (Enhanced)
+# YT Chat Render
 
 This is an enhanced version of the original script that converts YouTube Live Chat JSON or direct YouTube Video IDs into a high-quality video overlay. It supports advanced features like role-based coloring, hardware-accelerated ProRes 4444 (with transparency), and direct integration with `yt-dlp`.
 

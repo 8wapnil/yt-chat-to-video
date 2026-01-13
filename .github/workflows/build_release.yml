@@ -36,18 +36,18 @@ jobs:
     - name: Build with PyInstaller (Mac)
       if: runner.os == 'macOS'
       run: |
-        pyinstaller --noconfirm --onedir --windowed --name "YTChatRenderer" \
+        pyinstaller --noconfirm --onedir --windowed --name "YTChatRender" \
           --add-data "fonts:fonts" \
           --add-data "yt-chat-to-video.py:." \
           gui.py
         # Zip the .app for release
         cd dist
-        zip -r YTChatRenderer-Mac.zip YTChatRenderer.app
+        zip -r YTChatRender-Mac.zip YTChatRender.app
 
     - name: Build with PyInstaller (Windows)
       if: runner.os == 'Windows'
       run: |
-        pyinstaller --noconfirm --onefile --windowed --name "YTChatRenderer" `
+        pyinstaller --noconfirm --onefile --windowed --name "YTChatRender" `
           --add-data "fonts;fonts" `
           --add-data "yt-chat-to-video.py;." `
           gui.py
@@ -55,7 +55,7 @@ jobs:
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: YTChatRenderer-${{ runner.os }}
+        name: YTChatRender-${{ runner.os }}
         path: |
           dist/*.zip
           dist/*.exe
@@ -74,6 +74,6 @@ jobs:
       with:
         tag_name: ${{ inputs.tag_name }}
         files: |
-          YTChatRenderer-macOS/*.zip
-          YTChatRenderer-Windows/*.exe
+          YTChatRender-macOS/*.zip
+          YTChatRender-Windows/*.exe
         generate_release_notes: true
