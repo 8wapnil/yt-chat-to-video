@@ -4,9 +4,14 @@ This is an enhanced version of the original script that converts YouTube Live Ch
 
 <br/>
 <div align="center">
-   <img alt="screenshot_1" src="https://github.com/user-attachments/assets/35971241-e2df-470f-9813-b0ca8908457f">
+   <img alt="screenshot_gui" src="https://via.placeholder.com/800x600.png?text=GUI+Screenshot+Placeholder">
 </div>
 <br/>
+
+## 🚀 New: Full GUI App
+A user-friendly Graphical User Interface is now available!
+- **Download**: Check the [Releases](https://github.com/8wapnil/yt-chat-to-video/releases) page for the latest Mac `.app` or Windows `.exe`.
+- **Run Source**: `python gui.py`
 
 ## Key Enhancements
 
