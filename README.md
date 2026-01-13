@@ -1,20 +1,25 @@
-# YouTube Chat to Video
+# YouTube Chat to Video (Enhanced)
 
-This script converts YouTube Live Chat JSON (`.live_chat.json`) from [yt-dlp](https://github.com/yt-dlp/yt-dlp) into a video format (`.mp4` or `.webm`), allowing you to render the chat replay as an overlay for a video. It supports downloading user avatars and emojis, and can also generate videos with transparent backgrounds.
+This is an enhanced version of the original script that converts YouTube Live Chat JSON or direct YouTube Video IDs into a high-quality video overlay. It supports advanced features like role-based coloring, hardware-accelerated ProRes 4444 (with transparency), and direct integration with `yt-dlp`.
 
 <br/>
 <div align="center">
    <img alt="screenshot_1" src="https://github.com/user-attachments/assets/35971241-e2df-470f-9813-b0ca8908457f">
-   <br/>
-   <br/>
-   <img alt="screenshot_2" src="https://github.com/user-attachments/assets/b67d78f3-8863-4830-a003-46c58400d9c7">
 </div>
 <br/>
+
+## Key Enhancements
+
+- **Direct YouTube Input**: Render chat directly by providing a YouTube URL or ID.
+- **Advanced Coloring**: Customize colors for Owners, Moderators, Members, and Normal users separately.
+- **Professional Export**: Export in ProRes 4444 with alpha (transparency) using hardware acceleration on macOS.
+- **Improved Performance**: Better frame rendering and higher default framerates (60fps support).
 
 ## Requirements
 
 - Python 3.6+
 - [ffmpeg](https://ffmpeg.org/download.html)
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) (optional, for direct video ID support)
 - Python packages:
     ```bash
     pip install Pillow requests
@@ -22,69 +27,63 @@ This script converts YouTube Live Chat JSON (`.live_chat.json`) from [yt-dlp](ht
 
 ## Usage
 
-1. Download the live chat replay using [yt-dlp](https://github.com/yt-dlp/yt-dlp):
-    ```bash
-    yt-dlp --skip-download --write-subs --sub-lang "live_chat" https://www.youtube.com/watch?v=CqnNp8kwE78
-    ```
-
-2. After running the above command, you will have a file named `CqnNp8kwE78.live_chat.json` in the current directory. This file contains the live chat data.<br>
-   Pass this file to the script to convert it into a video:
-    ```bash
-    python yt-chat-to-video.py [options] CqnNp8kwE78.live_chat.json
-    ```
-
-3. Wait for the script to finish. It will generate a video file named `CqnNp8kwE78.mp4` in the current directory with the rendered chat replay.
-
-## More common usage examples
-
-### Render chat with transparent background and overlay it on a video using ffmpeg
-1. Download YouTube video with live chat replay:
-    ```bash
-    yt-dlp --write-subs --sub-lang "live_chat" https://www.youtube.com/watch?v=CqnNp8kwE78
-    ```
-2. Run the script to generate a transparent chat video:
-    ```bash
-    python yt-chat-to-video.py "CqnNp8kwE78.live_chat.json" --transparent
-    ```
-3. Use ffmpeg to overlay the chat video on top of recorded stream:
-    ```bash
-    ffmpeg -i "CqnNp8kwE78.mp4" -c:v libvpx-vp9 -i "CqnNp8kwE78.live_chat.webp" -filter_complex "[1:v]scale=400:-1[chat];[0:v][chat]overlay=W-w-10:H-h-10" output.mp4
-    ```
-   - (Note: without `-c:v libvpx-vp9` ffmpeg doesn't know how to handle transparent `.webp` files)
-
-   - Change `filter_complex` parameters to position the chat overlay as needed.
-
-### Render chat at x2 scale (useful for downsampling)
+### 1. Direct YouTube ID/URL
+You can now skip the manual `yt-dlp` step. Just provide the video URL:
 ```bash
-python yt-chat-to-video.py "CqnNp8kwE78.live_chat.json" --scale 2 -w 800 -h 1080
+python yt-chat-to-video.py "https://www.youtube.com/watch?v=VIDEO_ID" --output overlay.mov --codec prores --transparent --hwaccel
+```
+
+### 2. Manual JSON File
+If you already have a `.live_chat.json` file:
+```bash
+python yt-chat-to-video.py your_file.live_chat.json
+```
+
+## Professional Export Examples
+
+### Transparent ProRes 4444 (Best for Mac/Premiere/Final Cut)
+Uses hardware acceleration (`prores_videotoolbox`) for professional-grade transparent overlays.
+```bash
+python yt-chat-to-video.py VIDEO_ID --codec prores --transparent --hwaccel
+```
+
+### High Efficiency HEVC (H.265)
+```bash
+python yt-chat-to-video.py VIDEO_ID --codec hevc --hwaccel
+```
+
+## Advanced Coloring
+
+| Role | Argument | Default |
+| :--- | :--- | :--- |
+| **Owner** | `--color-owner` | `#ffd600` (Yellow) |
+| **Moderator** | `--color-moderator` | `#5e84f1` (Blue) |
+| **Member** | `--color-member` | `#2ba640` (Green) |
+| **Normal** | `--color-normal` | `#ffffff` (White) |
+
+**Example:**
+```bash
+python yt-chat-to-video.py input.json --color-moderator "#ff0000" --outline-width 2
 ```
 
 ## Command Line Arguments
 
 | Option               | Description                                                           | Default   |
 |----------------------|-----------------------------------------------------------------------|-----------|
-| `-o`, `--output`     | Output video file name                                                |           |
-| `-w`, `--width`      | Output video width (must be even)                                     | `400`     |
-| `-h`, `--height`     | Output video height (must be even)                                    | `540`     |
-| `-s`, `--scale`      | Chat resolution scale                                                 | `1`       |
-| `-r`, `--frame-rate` | Output video framerate                                                | `10`      |
-| `-b`, `--background` | Background color in hex                                               | `#0f0f0f` |
-| `--transparent`      | Make chat background transparent (forces output to transparent .webm) | `false`   |
-| `-p`, `--padding`    | Inner padding in pixels                                               | `24`      |
-| `--from`             | Start time (in seconds)                                               |           |
-| `--to`               | End time (in seconds)                                                 |           |
-| `--skip-avatars`     | Skip downloading user avatars                                         | `false`   |
-| `--skip-emojis`      | Skip downloading emojis                                               | `false`   |
+| `input_source`       | JSON file OR YouTube URL/ID                                           | `required`|
+| `-o`, `--output`     | Output video file name                                                | `auto`    |
+| `-w`, `--width`      | Output video width                                                    | `400`     |
+| `-h`, `--height`     | Output video height                                                   | `540`     |
+| `-r`, `--frame-rate` | Output video framerate                                                | `60`      |
+| `--codec`            | Video codec (`h264`, `hevc`, `prores`, `av1`)                         | `h264`    |
+| `--hwaccel`          | Use hardware acceleration (e.g., VideoToolbox on Mac)                 | `false`   |
+| `--transparent`      | Make chat background transparent                                      | `false`   |
+| `--outline-width`    | Thickness of the text border                                          | `1`       |
+| `--outline-color`    | Color of the text border                                              | `#000000` |
 | `--use-cache`        | Cache downloaded avatars and emojis to disk                           | `false`   |
-| `--no-clip`          | Don\'t clip chat messages at the top                                  | `true`    |
-| `--proxy`            | HTTP/HTTPS/SOCKS proxy (`e.g. socks5://127.0.0.1:1080/`)              |           |
-
 
 ## Fonts
 
 This project includes the [Roboto](https://fonts.google.com/specimen/Roboto) font, licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
-
-- Roboto-Regular.ttf
-- Roboto-Medium.ttf
 
 Copyright (c) Google Fonts
