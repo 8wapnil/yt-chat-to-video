@@ -80,26 +80,21 @@ A powerful tool to convert YouTube live chat streams into customizable video ove
   - `AV1`: Open, high efficiency.
 - **Transparent Background**: Enables alpha channel (requires valid codec like ProRes/HEVC).
 - **Background Color**: Visible if transparency is off.
+- **Manual Timing**: Under the 'Main' tab, you can manually set Start and End times. 
+  - *Note*: If EDL is active, these inputs are disabled to prevent desync.
 
 ### Style Tab
 Customize the look of the chat.
-- **Global Fonts**: Select `.ttf` files for Author Names and Message Text.
-- **Role Settings**: Different styles for:
-  - *Owner* (Broadcaster)
-  - *Moderator* (Blue wrench)
-  - *Member* (Subscribers)
-  - *Normal* (Viewers)
-- **Attributes per Role**:
-  - Name Color, Message Color
-  - Font Sizes (Name & Message)
-  - Avatar Size, Emoji Size
-  - Padding & Line Height
+- **Global Fonts**: Select `.ttf` files for Author Names and Message Text. Note: The GUI also supports choosing from your **System Fonts** via the dropdown menus.
+- **Role Settings**: Different styles for Owner, Moderator, Member, and Normal users.
+- **Attributes per Role**: Customize colors, font sizes, avatar/emoji sizes, and padding individually.
 
 ### Advanced Tab (EDL)
 - **Use EDL**: Enable automated cutting.
-- **EDL File**: Load a `.edl` file exported from your editor.
-- **Clip Name**: The specific source clip name in your timeline that corresponds to the raw stream (e.g., "Stream Recording.mkv").
-- **Analysis**: The tool parses the EDL to find every timestamp where "Stream Recording.mkv" appears and renders *only* those segments of chat, perfectly synchronized.
+- **EDL File**: Load a `.edl` file exported from your editor (CMX 3600 format).
+- **Clip Name**: The specific source clip name in your timeline.
+- **Analysis**: The tool parses the EDL to find every timestamp where the clip appears.
+- **Est. Duration**: **CRITICAL**: The estimated duration label only appears when an EDL file is successfully loaded and selected. It shows the total combined length of all segments to be rendered.
 
 ---
 
@@ -156,9 +151,33 @@ This is the "killer feature" for editors. instead of rendering 4 hours of chat f
 
 ---
 
+## Technical Details
+
+### CLI Preview Synchronization
+The GUI features a **CLI Preview** at the bottom. This box updates in real-time as you change settings in the UI. 
+- **Two-way Sync**: You can manually edit the command in the text box and press **Enter** to apply those changes back to the GUI fields. This is perfect for power users who want to tweak flags manually without clicking through multiple tabs.
+
+### Rendering Engine Architecture
+The tool uses a frame-by-frame rendering approach:
+1.  **Parsing**: Chat messages are parsed from JSON and sorted by timestamp. Emojis and Avatars are pre-downloaded and cached to avoid network latency during render.
+2.  **Layout**: Each frame (at the specified FPS) is drawn using the `Pillow` library. The engine calculates the vertical position of each message based on font sizes and line heights.
+3.  **Streaming**: Instead of saving thousands of image files, raw frame data is piped directly into `ffmpeg` via **stdin**.
+4.  **Hardware Acceleration**: On macOS, the tool leverages `videotoolbox` for lightning-fast hardware-accelerated encoding, significantly reducing render times for high-res chat videos.
+
+---
+
 ## Troubleshooting
 
 - **"FFMPEG exited early"**: Usually means invalid arguments (e.g., odd resolution for specific codecs) or missing libraries. Check logs.
 - **"Image data size mismatch"**: The rendered PIL image doesn't match the ffmpeg buffer. Ensure width/height are even numbers.
 - **No Chat appearing**: Check the "Start/End Time" or EDL. If your video starts at 01:00:00 but you rendered from 00:00:00, it might be desynced.
-- **Tkinter Errors**: Ensure you have Python with tcl/tk support (standard on most Windows/Mac installers). Linux users might need `sudo apt install python3-tk`.
+- **Tkinter Errors**: Linux users might need `sudo apt install python3-tk`.
+
+---
+
+## Development Info
+
+> [!NOTE]
+> **This project is currently distributed as source-only.** 
+> All GitHub Actions and automated binary builds have been disabled. 
+> To run the app, ensure all dependencies are installed and execute `python3 gui.py`.

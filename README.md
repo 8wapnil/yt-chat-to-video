@@ -8,14 +8,10 @@ This is an enhanced version of the original script that converts YouTube Live Ch
 </div>
 <br/>
 
-## 🚀 New: Full GUI App (v2.0)
-A user-friendly Graphical User Interface is now available with a completely modernized design!
--   **Live Preview**: See your chat style update in real-time as you tweak colors and sizes.
--   **Modern Styling**: Fully responsive design with **Dark/Light Mode** support and beautiful icons.
--   **System Integration**: Use your system's native **Color Picker** and choose from **System Fonts** directly in the app.
 -   **Role-Based Styling**: Granular control over fonts, colors, and layout for Owners, Mods, and Members.
--   **Download**: Check the [Releases](https://github.com/8wapnil/yt-chat-to-video/releases) page for the latest Mac `.app` or Windows `.exe`.
--   **Run Source**: `python gui.py`
+-   **EDL Integration**: Synchronize chat rendering with edited video timelines automatically.
+-   **Run Source**: `python3 gui.py`
+
 
 ## Key Enhancements
 
