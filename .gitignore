@@ -6,3 +6,4 @@ yt-chat-to-video_cache/
 *.part
 *.ytdl
 *.json.DS_Store
+__pycache__

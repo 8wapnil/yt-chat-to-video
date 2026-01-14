@@ -4,14 +4,18 @@ This is an enhanced version of the original script that converts YouTube Live Ch
 
 <br/>
 <div align="center">
-   <img alt="screenshot_gui" src="assets/main.png">
+<!-- <img alt="screenshot_gui" src="assets/main.png"> -->
 </div>
 <br/>
 
-## 🚀 New: Full GUI App
-A user-friendly Graphical User Interface is now available!
-- **Download**: Check the [Releases](https://github.com/8wapnil/yt-chat-to-video/releases) page for the latest Mac `.app` or Windows `.exe`.
-- **Run Source**: `python gui.py`
+## 🚀 New: Full GUI App (v2.0)
+A user-friendly Graphical User Interface is now available with a completely modernized design!
+-   **Live Preview**: See your chat style update in real-time as you tweak colors and sizes.
+-   **Modern Styling**: Fully responsive design with **Dark/Light Mode** support and beautiful icons.
+-   **System Integration**: Use your system's native **Color Picker** and choose from **System Fonts** directly in the app.
+-   **Role-Based Styling**: Granular control over fonts, colors, and layout for Owners, Mods, and Members.
+-   **Download**: Check the [Releases](https://github.com/8wapnil/yt-chat-to-video/releases) page for the latest Mac `.app` or Windows `.exe`.
+-   **Run Source**: `python gui.py`
 
 ## Key Enhancements
 
@@ -85,6 +89,16 @@ python yt-chat-to-video.py input.json --color-moderator "#ff0000" --outline-widt
 | `--transparent`      | Make chat background transparent                                      | `false`   |
 | `--outline-width`    | Thickness of the text border                                          | `1`       |
 | `--outline-color`    | Color of the text border                                              | `#000000` |
+| `--author-font-size` | Font size for usernames                                               | `13`      |
+| `--message-font-size`| Font size for chat messages                                           | `13`      |
+| `--line-height`      | Vertical space between messages                                       | `16`      |
+| `--avatar-size`      | Size of user avatars                                                  | `24`      |
+| `--emoji-size`       | Size of emojis                                                        | `16`      |
+| `--author-font`      | Path to custom .ttf for usernames                                     | `Roboto`  |
+| `--message-font`     | Path to custom .ttf for messages                                      | `Roboto`  |
+| `--msg-owner`        | Color for Owner messages                                              | `white`   |
+| `--msg-moderator`    | Color for Moderator messages                                          | `white`   |
+| `--msg-member`       | Color for Member messages                                             | `white`   |
 | `--use-cache`        | Cache downloaded avatars and emojis to disk                           | `false`   |
 
 ## Fonts
