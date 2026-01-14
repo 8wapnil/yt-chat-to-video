@@ -4,7 +4,8 @@ This is an enhanced version of the original script that converts YouTube Live Ch
 
 <br/>
 <div align="center">
-<!-- <img alt="screenshot_gui" src="assets/main.png"> -->
+  <img alt="screenshot_gui" src="assets/screenshot.png" width="45%">
+  <img alt="screenshot_gui_2" src="assets/screenshot2.png" width="45%">
 </div>
 <br/>
 
