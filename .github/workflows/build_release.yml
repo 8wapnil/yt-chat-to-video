@@ -7,6 +7,9 @@ on:
         description: 'Tag name for release (e.g. v1.0.1)'
         required: true
         default: 'manual-build'
+  push:
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
@@ -72,7 +75,7 @@ jobs:
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ inputs.tag_name }}
+        tag_name: ${{ inputs.tag_name || github.ref_name }}
         files: |
           YTChatRender-macOS/*.zip
           YTChatRender-Windows/*.exe
